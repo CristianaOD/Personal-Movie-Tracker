@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">UniBucFMIIF2026</string>
+    <string name="app_name" translatable="false">Personal Movie Tracker</string>
 
     <string name="hello_world">Hello World!</string>
 
@@ -7,10 +7,10 @@
     <string name="yellow">Yellow</string>
     <string name="red">Red</string>
 
-    <string name="welcome" translatable="false">Welcome</string>
+    <string name="welcome" translatable="false">Welcome back</string>
     <string name="logout_btn" translatable="false">Logout</string>
-    <string name="login_page" translatable="false">Login page</string>
-    <string name="register_page" translatable="false">Register page</string>
+    <string name="login_page" translatable="false">Login to continue</string>
+    <string name="register_page" translatable="false">Create your account</string>
     <string name="password" translatable="false">Password</string>
     <string name="email" translatable="false">Email</string>
     <string name="login" translatable="false">Login</string>
@@ -18,21 +18,9 @@
     <string name="goto_register" translatable="false">Don\'t have an account? Register</string>
     <string name="goto_login" translatable="false">Already have an account? Login</string>
     <string name="invalid_email" translatable="false">Email is invalid</string>
-    <string name="invalid_password" translatable="false">Password must be longer than 6 characters</string>
-    <string name="firstname" translatable="false">First name</string>
-    <string name="lastname" translatable="false">Last name</string>
-    <string name="invalid_firstname" translatable="false">First name is invalid</string>
-    <string name="invalid_lastname" translatable="false">Last name is invalid</string>
-    <string name="add_user" translatable="false">Add user</string>
-    <string name="load_users" translatable="false">Load users</string>
-    <string name="address_details_title" translatable="false">Address details</string>
-    <string name="addresses_page_title" translatable="false">Addresses</string>
-    <string name="goto_addresses_btn" translatable="false">Go to addresses</string>
-    <string name="add_address" translatable="false">Add address</string>
-    <string name="street" translatable="false">Street</string>
-    <string name="city" translatable="false">City</string>
-    <string name="invalid_street" translatable="false">Street name is invalid</string>
-    <string name="invalid_city" translatable="false">City name is invalid</string>
-    <string name="no_addresses_found" translatable="false">No addresses found</string>
-    <string name="no_users_found" translatable="false">No users found</string>
+    <string name="invalid_password" translatable="false">Password must contain at least 6 characters</string>
+    <string name="password_visibility_toggle" translatable="false">Toggle password visibility</string>
+    <string name="home_title" translatable="false">Personal Movie Tracker</string>
+    <string name="home_subtitle" translatable="false">Authentication is ready. Next step: build the movie browsing experience.</string>
+    <string name="logged_in_as" translatable="false">Logged in as %1$s</string>
 </resources>

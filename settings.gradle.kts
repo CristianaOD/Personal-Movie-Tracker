@@ -22,6 +22,6 @@ dependencyResolutionManagement {
 	}
 }
 
-rootProject.name = "UniBucFMIIF2026"
+rootProject.name = "Personal Movie Tracker"
 include(":app")
  

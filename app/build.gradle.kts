@@ -1,5 +1,3 @@
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -22,20 +20,6 @@ android {
         versionCode = 1
         versionName = "1.0.0"
 
-        //load the values from .properties file
-        val keystoreFile = project.rootProject.file("local.properties")
-        val properties = Properties()
-        properties.load(keystoreFile.inputStream())
-
-        //return empty key in case something goes wrong
-        val apiKey = properties.getProperty("reqres_key") ?: ""
-
-        buildConfigField(
-            type = "String",
-            name = "API_KEY",
-            value = "\"$apiKey\""
-        )
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -54,29 +38,6 @@ android {
     }
     buildFeatures {
         compose = true
-        buildConfig = true
-    }
-
-    flavorDimensions += "environment"
-    productFlavors {
-        create("dev") {
-            dimension = "environment"
-            applicationIdSuffix = ".dev"
-            versionCode = 1
-            versionName = "1.0.0-dev"
-            buildConfigField("String", "BASE_URL", "\"https://dev.myapp.com\"")
-        }
-        create("qa") {
-            dimension = "environment"
-            applicationIdSuffix = ".qa"
-            versionCode = 1
-            versionName = "1.0.6-qa"
-            buildConfigField("String", "BASE_URL", "\"https://qa.myapp.com\"")
-        }
-        create("prod") {
-            dimension = "environment"
-            buildConfigField("String", "BASE_URL", "\"https://myapp.com\"")
-        }
     }
 }
 

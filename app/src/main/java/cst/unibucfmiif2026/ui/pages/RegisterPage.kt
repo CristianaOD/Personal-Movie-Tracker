@@ -1,6 +1,5 @@
 package cst.unibucfmiif2026.ui.pages
 
-import cst.unibucfmiif2026.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -31,13 +30,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.android.material.progressindicator.CircularProgressIndicator
+import cst.unibucfmiif2026.R
 import cst.unibucfmiif2026.ui.theme.UniBucFMIIF2026Theme
 import cst.unibucfmiif2026.utils.isValidEmail
 import cst.unibucfmiif2026.utils.isValidPassword
@@ -45,10 +45,11 @@ import cst.unibucfmiif2026.utils.isValidPassword
 @Composable
 fun RegisterPage(
     onLoginClick: () -> Unit = {},
-    onRegisterClick: (email:String, password: String, onSuccess: () -> Unit) -> Unit = {_, _, _ ->},
-    onRegisterSuccess : () -> Unit = {},
+    onRegisterClick: (email: String, password: String, onSuccess: () -> Unit) -> Unit = { _, _, _ -> },
+    onRegisterSuccess: () -> Unit = {},
     isLoading: Boolean = false,
-    errorMessage: String? = null
+    errorMessage: String? = null,
+    onErrorDismiss: () -> Unit = {}
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -57,6 +58,7 @@ fun RegisterPage(
     var passwordError by remember { mutableStateOf<String?>(null) }
     val invalidEmailMessage = stringResource(R.string.invalid_email)
     val invalidPasswordMessage = stringResource(R.string.invalid_password)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -83,21 +85,18 @@ fun RegisterPage(
             onValueChange = { newValue ->
                 email = newValue
                 emailError = null
+                onErrorDismiss()
             },
-            label = {
-                Text(stringResource(R.string.email))
-            },
+            label = { Text(stringResource(R.string.email)) },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Email,
-                    contentDescription = null
+                    contentDescription = stringResource(R.string.email)
                 )
             },
             isError = emailError != null,
-            supportingText = emailError?.let { errorMessage ->
-                {
-                    Text(errorMessage)
-                }
+            supportingText = emailError?.let { currentError ->
+                { Text(currentError) }
             },
             singleLine = true,
             keyboardOptions = KeyboardOptions(
@@ -114,35 +113,36 @@ fun RegisterPage(
             onValueChange = { newValue ->
                 password = newValue
                 passwordError = null
+                onErrorDismiss()
             },
-            label = {
-                Text(stringResource(R.string.password))
-            },
+            label = { Text(stringResource(R.string.password)) },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Password,
-                    contentDescription = "Email"
+                    contentDescription = stringResource(R.string.password)
                 )
             },
             trailingIcon = {
-                IconButton(
-                    onClick = { isPasswordVisible = !isPasswordVisible }
-                ) {
+                IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                     Icon(
-                        imageVector = if (isPasswordVisible)
-                            Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                        contentDescription = "Password"
+                        imageVector = if (isPasswordVisible) {
+                            Icons.Default.VisibilityOff
+                        } else {
+                            Icons.Default.Visibility
+                        },
+                        contentDescription = stringResource(R.string.password_visibility_toggle)
                     )
                 }
             },
             isError = passwordError != null,
-            supportingText = passwordError?.let { errorMessage ->
-                {
-                    Text(errorMessage)
-                }
+            supportingText = passwordError?.let { currentError ->
+                { Text(currentError) }
             },
-            visualTransformation = if (isPasswordVisible)
-                VisualTransformation.None else PasswordVisualTransformation(),
+            visualTransformation = if (isPasswordVisible) {
+                VisualTransformation.None
+            } else {
+                PasswordVisualTransformation()
+            },
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
@@ -156,6 +156,7 @@ fun RegisterPage(
         Button(
             onClick = {
                 var isValid = true
+
                 if (!email.isValidEmail()) {
                     emailError = invalidEmailMessage
                     isValid = false
@@ -166,33 +167,38 @@ fun RegisterPage(
                     isValid = false
                 }
 
-                if (isValid) onRegisterClick(
-                    email,
-                    password,
-                    onRegisterSuccess
-                )
+                if (isValid) {
+                    onRegisterClick(email, password, onRegisterSuccess)
+                }
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = !isLoading
         ) {
-            when (isLoading) {
-                true -> CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
-                false -> Text(stringResource(R.string.register))
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Text(stringResource(R.string.register))
             }
         }
 
-        errorMessage?.let { errMsg ->
+        errorMessage?.let { currentError ->
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
-                text = errMsg
+                fontWeight = FontWeight.Bold,
+                text = currentError
             )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        TextButton(onClick = onLoginClick) { Text(stringResource(R.string.goto_login)) }
+        TextButton(onClick = onLoginClick) {
+            Text(stringResource(R.string.goto_login))
+        }
     }
 }
 

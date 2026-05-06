@@ -1,6 +1,5 @@
 package cst.unibucfmiif2026.ui.pages
 
-import cst.unibucfmiif2026.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -38,6 +37,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import cst.unibucfmiif2026.R
 import cst.unibucfmiif2026.ui.theme.UniBucFMIIF2026Theme
 import cst.unibucfmiif2026.utils.isValidEmail
 import cst.unibucfmiif2026.utils.isValidPassword
@@ -45,10 +45,11 @@ import cst.unibucfmiif2026.utils.isValidPassword
 @Composable
 fun LoginPage(
     onRegisterClick: () -> Unit = {},
-    onLoginClick: (email:String, password: String, onSuccess: () -> Unit) -> Unit = {_, _, _ ->},
-    onLoginSuccess : () -> Unit = {},
-    isLoading : Boolean = false,
-    errorMessage : String? = null
+    onLoginClick: (email: String, password: String, onSuccess: () -> Unit) -> Unit = { _, _, _ -> },
+    onLoginSuccess: () -> Unit = {},
+    isLoading: Boolean = false,
+    errorMessage: String? = null,
+    onErrorDismiss: () -> Unit = {}
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -57,6 +58,7 @@ fun LoginPage(
     var passwordError by remember { mutableStateOf<String?>(null) }
     val invalidEmailMessage = stringResource(R.string.invalid_email)
     val invalidPasswordMessage = stringResource(R.string.invalid_password)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -83,23 +85,19 @@ fun LoginPage(
             onValueChange = { newValue ->
                 email = newValue
                 emailError = null
-
+                onErrorDismiss()
             },
-            label = {
-                Text(stringResource(R.string.email))
-            },
+            label = { Text(stringResource(R.string.email)) },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Email,
-                    contentDescription = null
+                    contentDescription = stringResource(R.string.email)
                 )
             },
             singleLine = true,
             isError = emailError != null,
-            supportingText = emailError?.let { errorMessage ->
-                {
-                    Text(errorMessage)
-                }
+            supportingText = emailError?.let { currentError ->
+                { Text(currentError) }
             },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Email,
@@ -115,35 +113,36 @@ fun LoginPage(
             onValueChange = { newValue ->
                 password = newValue
                 passwordError = null
+                onErrorDismiss()
             },
-            label = {
-                Text(stringResource(R.string.password))
-            },
+            label = { Text(stringResource(R.string.password)) },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Password,
-                    contentDescription = "Email"
+                    contentDescription = stringResource(R.string.password)
                 )
             },
             trailingIcon = {
-                IconButton(
-                    onClick = { isPasswordVisible = !isPasswordVisible }
-                ) {
+                IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                     Icon(
-                        imageVector = if (isPasswordVisible)
-                            Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                        contentDescription = "Password"
+                        imageVector = if (isPasswordVisible) {
+                            Icons.Default.VisibilityOff
+                        } else {
+                            Icons.Default.Visibility
+                        },
+                        contentDescription = stringResource(R.string.password_visibility_toggle)
                     )
                 }
             },
             isError = passwordError != null,
-            supportingText = passwordError?.let { errorMessage ->
-                {
-                    Text(errorMessage)
-                }
+            supportingText = passwordError?.let { currentError ->
+                { Text(currentError) }
             },
-            visualTransformation = if (isPasswordVisible)
-                VisualTransformation.None else PasswordVisualTransformation(),
+            visualTransformation = if (isPasswordVisible) {
+                VisualTransformation.None
+            } else {
+                PasswordVisualTransformation()
+            },
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
@@ -157,6 +156,7 @@ fun LoginPage(
         Button(
             onClick = {
                 var isValid = true
+
                 if (!email.isValidEmail()) {
                     emailError = invalidEmailMessage
                     isValid = false
@@ -167,33 +167,38 @@ fun LoginPage(
                     isValid = false
                 }
 
-                if (isValid) onLoginClick(
-                    email,
-                    password,
-                    onLoginSuccess
-                ) },
+                if (isValid) {
+                    onLoginClick(email, password, onLoginSuccess)
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
             enabled = !isLoading
         ) {
-            when (isLoading) {
-                true -> CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
-                false -> Text(stringResource(R.string.login))
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Text(stringResource(R.string.login))
             }
         }
 
-        errorMessage?.let { errMsg ->
+        errorMessage?.let { currentError ->
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Bold,
-                text = errMsg
+                text = currentError
             )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        TextButton(onClick = onRegisterClick) { Text(stringResource(R.string.goto_register)) }
+        TextButton(onClick = onRegisterClick) {
+            Text(stringResource(R.string.goto_register))
+        }
     }
 }
 
