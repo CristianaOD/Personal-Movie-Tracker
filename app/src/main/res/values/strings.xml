@@ -2,7 +2,6 @@
     <string name="app_name" translatable="false">Personal Movie Tracker</string>
 
     <string name="hello_world">Hello World!</string>
-
     <string name="green">Green</string>
     <string name="yellow">Yellow</string>
     <string name="red">Red</string>
@@ -17,10 +16,25 @@
     <string name="register" translatable="false">Register</string>
     <string name="goto_register" translatable="false">Don\'t have an account? Register</string>
     <string name="goto_login" translatable="false">Already have an account? Login</string>
+    <string name="continue_as_guest" translatable="false">Continue as guest</string>
     <string name="invalid_email" translatable="false">Email is invalid</string>
     <string name="invalid_password" translatable="false">Password must contain at least 6 characters</string>
     <string name="password_visibility_toggle" translatable="false">Toggle password visibility</string>
+
     <string name="home_title" translatable="false">Personal Movie Tracker</string>
-    <string name="home_subtitle" translatable="false">Authentication is ready. Next step: build the movie browsing experience.</string>
+    <string name="movies_home_subtitle" translatable="false">Discover trending movies, explore details, and shape your personal watchlist.</string>
     <string name="logged_in_as" translatable="false">Logged in as %1$s</string>
+    <string name="trending_movies_title" translatable="false">Trending Movies</string>
+    <string name="movies_count_label" translatable="false">%1$d movies available</string>
+    <string name="release_date_label" translatable="false">Release date: %1$s</string>
+    <string name="movie_rating_label" translatable="false">Rating %.1f</string>
+    <string name="movie_details_cta" translatable="false">View details</string>
+    <string name="loading_movies_label" translatable="false">Loading movies...</string>
+    <string name="retry_label" translatable="false">Retry</string>
+
+    <string name="back_to_movies" translatable="false">Back to movies</string>
+    <string name="loading_movie_details_label" translatable="false">Loading movie details...</string>
+    <string name="movie_details_not_found" translatable="false">Movie details could not be loaded.</string>
+    <string name="movie_rating_details_label" translatable="false">Rating: %.1f (%2$d votes)</string>
+    <string name="movie_overview_label" translatable="false">Overview</string>
 </resources>

@@ -47,6 +47,7 @@ fun LoginPage(
     onRegisterClick: () -> Unit = {},
     onLoginClick: (email: String, password: String, onSuccess: () -> Unit) -> Unit = { _, _, _ -> },
     onLoginSuccess: () -> Unit = {},
+    onContinueAsGuest: () -> Unit = {},
     isLoading: Boolean = false,
     errorMessage: String? = null,
     onErrorDismiss: () -> Unit = {}
@@ -198,6 +199,10 @@ fun LoginPage(
 
         TextButton(onClick = onRegisterClick) {
             Text(stringResource(R.string.goto_register))
+        }
+
+        TextButton(onClick = onContinueAsGuest) {
+            Text(stringResource(R.string.continue_as_guest))
         }
     }
 }

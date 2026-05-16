@@ -1,0 +1,22 @@
+package cst.unibucfmiif2026.movie.network
+
+import cst.unibucfmiif2026.movie.network.dto.TmdbMovieDetailsDto
+import cst.unibucfmiif2026.movie.network.dto.TmdbTrendingMoviesResponseDto
+import retrofit2.http.GET
+import retrofit2.http.Path
+import retrofit2.http.Query
+
+interface TmdbApiService {
+    @GET("trending/movie/day")
+    suspend fun getTrendingMovies(
+        @Query("api_key") apiKey: String,
+        @Query("language") language: String = "en-US"
+    ): TmdbTrendingMoviesResponseDto
+
+    @GET("movie/{movie_id}")
+    suspend fun getMovieDetails(
+        @Path("movie_id") movieId: Int,
+        @Query("api_key") apiKey: String,
+        @Query("language") language: String = "en-US"
+    ): TmdbMovieDetailsDto
+}
