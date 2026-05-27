@@ -1,6 +1,5 @@
 package cst.unibucfmiif2026.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -9,18 +8,47 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-	primary = Purple80,
-	secondary = PurpleGrey80,
-	tertiary = Pink80
+	primary = CinemaGold,
+	onPrimary = CinemaGoldDark,
+	secondary = CinemaBlue,
+	onSecondary = CinemaBackground,
+	tertiary = MovieSky,
+	background = CinemaBackground,
+	onBackground = CinemaText,
+	surface = CinemaSurface,
+	onSurface = CinemaText,
+	surfaceVariant = CinemaSurfaceVariant,
+	onSurfaceVariant = ColorWhiteSoft,
+	secondaryContainer = CinemaSurfaceVariant,
+	onSecondaryContainer = CinemaText,
+	outline = CinemaOutline,
+	surfaceContainer = CinemaSurface,
+	surfaceContainerHigh = CinemaSurfaceRaised,
+	surfaceContainerHighest = CinemaSurfaceVariant
 )
 
 private val LightColorScheme = lightColorScheme(
-	primary = Purple40,
-	secondary = PurpleGrey40,
-	tertiary = Pink40
+	primary = MovieBlue,
+	onPrimary = ColorWhitePure,
+	secondary = MovieSlate,
+	onSecondary = ColorWhitePure,
+	tertiary = MovieBlueDark,
+	background = MovieBackground,
+	onBackground = Ink900,
+	surface = MovieSurface,
+	onSurface = Ink900,
+	surfaceVariant = MovieSurfaceVariant,
+	onSurfaceVariant = Ink700,
+	secondaryContainer = MovieSky,
+	onSecondaryContainer = MovieBlueDark,
+	outline = MovieOutline,
+	surfaceContainer = MovieSurface,
+	surfaceContainerHigh = Color(0xFFF0F3FA),
+	surfaceContainerHighest = MovieSurfaceVariant
 
 	/* Other default colors to override
     background = Color(0xFFFFFBFE),

@@ -24,17 +24,47 @@
     <string name="home_title" translatable="false">Personal Movie Tracker</string>
     <string name="movies_home_subtitle" translatable="false">Discover trending movies, explore details, and shape your personal watchlist.</string>
     <string name="logged_in_as" translatable="false">Logged in as %1$s</string>
+    <string name="guest_mode_label" translatable="false">Guest mode</string>
+    <string name="search_movies_label" translatable="false">Search movies</string>
+    <string name="clear_search_label" translatable="false">Clear search</string>
+    <string name="search_label" translatable="false">Search</string>
+    <string name="show_trending_label" translatable="false">Show trending</string>
+    <string name="watchlist_title" translatable="false">Watchlist</string>
+    <string name="watchlist_subtitle" translatable="false">Movies saved locally with Room.</string>
+    <string name="watchlist_count_label" translatable="false">Watchlist (%1$d)</string>
+    <string name="saved_movies_count_label" translatable="false">%1$d saved movies</string>
+    <string name="toggle_watchlist_label" translatable="false">Toggle watchlist</string>
+    <string name="add_to_watchlist_label" translatable="false">Add to watchlist</string>
+    <string name="remove_from_watchlist_label" translatable="false">Remove from watchlist</string>
+    <string name="dark_mode_label" translatable="false">Dark mode</string>
+    <string name="dark_mode_subtitle" translatable="false">Use a cinematic dark palette across the app.</string>
     <string name="trending_movies_title" translatable="false">Trending Movies</string>
+    <string name="search_results_title" translatable="false">Search Results</string>
     <string name="movies_count_label" translatable="false">%1$d movies available</string>
+    <string name="movies_count_with_watchlist_label" translatable="false">%1$d movies available • %2$d saved</string>
     <string name="release_date_label" translatable="false">Release date: %1$s</string>
     <string name="movie_rating_label" translatable="false">Rating %.1f</string>
     <string name="movie_details_cta" translatable="false">View details</string>
     <string name="loading_movies_label" translatable="false">Loading movies...</string>
+    <string name="loading_watchlist_label" translatable="false">Loading watchlist...</string>
+    <string name="empty_watchlist_label" translatable="false">Your watchlist is empty for now.</string>
+    <string name="no_movies_found_label" translatable="false">No movies found for this search.</string>
     <string name="retry_label" translatable="false">Retry</string>
+    <string name="no_poster_label" translatable="false">No poster</string>
 
     <string name="back_to_movies" translatable="false">Back to movies</string>
+    <string name="back_to_login_label" translatable="false">Back to login</string>
     <string name="loading_movie_details_label" translatable="false">Loading movie details...</string>
     <string name="movie_details_not_found" translatable="false">Movie details could not be loaded.</string>
     <string name="movie_rating_details_label" translatable="false">Rating: %.1f (%2$d votes)</string>
     <string name="movie_overview_label" translatable="false">Overview</string>
+    <string name="settings_title" translatable="false">Settings &amp; Account</string>
+    <string name="settings_subtitle" translatable="false">Manage appearance and account access from one place.</string>
+    <string name="appearance_section_title" translatable="false">Appearance</string>
+    <string name="account_section_title" translatable="false">My account</string>
+    <string name="account_status_logged_in" translatable="false">Signed in with Firebase</string>
+    <string name="account_status_guest" translatable="false">Browsing as guest</string>
+    <string name="nav_home_label" translatable="false">Home</string>
+    <string name="nav_watchlist_label" translatable="false">Watchlist</string>
+    <string name="nav_settings_label" translatable="false">Settings</string>
 </resources>
