@@ -1,9 +1,14 @@
 package cst.unibucfmiif2026.movie.data
 
 import cst.unibucfmiif2026.BuildConfig
+import cst.unibucfmiif2026.movie.data.local.MovieDao
+import cst.unibucfmiif2026.movie.data.local.toEntity
+import cst.unibucfmiif2026.movie.data.local.toMovie
 import cst.unibucfmiif2026.movie.model.Movie
 import cst.unibucfmiif2026.movie.network.TmdbRetrofitClient
 import cst.unibucfmiif2026.movie.network.dto.toMovie
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -17,7 +22,19 @@ data class MovieDetailsResult(
     val infoMessage: String? = null
 )
 
-class MoviesRepository {
+class MoviesRepository(
+    private val movieDao: MovieDao
+) {
+    fun observeWatchlistMovies(): Flow<List<Movie>> {
+        return movieDao.observeWatchlistMovies()
+            .map { entities -> entities.map { entity -> entity.toMovie() } }
+    }
+
+    fun observeWatchlistIds(): Flow<Set<Int>> {
+        return movieDao.observeWatchlistIds()
+            .map { ids -> ids.toSet() }
+    }
+
     suspend fun getTrendingMovies(): MoviesResult {
         val apiKey = BuildConfig.TMDB_API_KEY
 
@@ -41,13 +58,47 @@ class MoviesRepository {
         }
     }
 
+    suspend fun searchMovies(query: String): MoviesResult {
+        val apiKey = BuildConfig.TMDB_API_KEY
+
+        if (apiKey.isBlank()) {
+            val filteredPreviewMovies = previewMovies.filter { movie ->
+                movie.title.contains(query, ignoreCase = true)
+            }
+
+            return MoviesResult(
+                movies = filteredPreviewMovies,
+                infoMessage = "TMDB API key is not configured yet. Showing preview search results."
+            )
+        }
+
+        return runCatching {
+            val response = TmdbRetrofitClient.api.searchMovies(
+                apiKey = apiKey,
+                query = query
+            )
+            MoviesResult(
+                movies = response.results.orEmpty().map { movie -> movie.toMovie() }
+            )
+        }.getOrElse { error ->
+            MoviesResult(
+                movies = previewMovies.filter { movie ->
+                    movie.title.contains(query, ignoreCase = true)
+                },
+                infoMessage = "TMDB search failed: ${error.toReadableTmdbMessage()}. Showing preview search results instead."
+            )
+        }
+    }
+
     suspend fun getMovieDetails(movieId: Int): MovieDetailsResult {
         val apiKey = BuildConfig.TMDB_API_KEY
+        val watchlistMovie = movieDao.getById(movieId)?.toMovie()
         val previewMovie = previewMovies.firstOrNull { movie -> movie.id == movieId }
+        val fallbackMovie = watchlistMovie ?: previewMovie
 
         if (apiKey.isBlank()) {
             return MovieDetailsResult(
-                movie = previewMovie,
+                movie = fallbackMovie,
                 infoMessage = "TMDB API key is not configured yet. Showing preview details."
             )
         }
@@ -60,9 +111,25 @@ class MoviesRepository {
             MovieDetailsResult(movie = response.toMovie())
         }.getOrElse { error ->
             MovieDetailsResult(
-                movie = previewMovie,
+                movie = fallbackMovie,
                 infoMessage = "TMDB details request failed: ${error.toReadableTmdbMessage()}. Showing preview details instead."
             )
+        }
+    }
+
+    suspend fun addToWatchlist(movie: Movie) {
+        movieDao.insert(movie.copy(isInWatchlist = true).toEntity())
+    }
+
+    suspend fun removeFromWatchlist(movieId: Int) {
+        movieDao.deleteById(movieId)
+    }
+
+    suspend fun toggleWatchlist(movie: Movie) {
+        if (movie.isInWatchlist) {
+            removeFromWatchlist(movie.id)
+        } else {
+            addToWatchlist(movie)
         }
     }
 

@@ -13,6 +13,14 @@ interface TmdbApiService {
         @Query("language") language: String = "en-US"
     ): TmdbTrendingMoviesResponseDto
 
+    @GET("search/movie")
+    suspend fun searchMovies(
+        @Query("api_key") apiKey: String,
+        @Query("query") query: String,
+        @Query("language") language: String = "en-US",
+        @Query("include_adult") includeAdult: Boolean = false
+    ): TmdbTrendingMoviesResponseDto
+
     @GET("movie/{movie_id}")
     suspend fun getMovieDetails(
         @Path("movie_id") movieId: Int,

@@ -7,16 +7,23 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -25,7 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -40,7 +46,6 @@ import cst.unibucfmiif2026.ui.theme.UniBucFMIIF2026Theme
 fun MoviesHomePage(
     userEmail: String? = null,
     onMovieClick: (Movie) -> Unit = {},
-    onLogout: () -> Unit = {},
     viewModel: MoviesViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -48,9 +53,18 @@ fun MoviesHomePage(
     MoviesHomeContent(
         userEmail = userEmail,
         uiState = uiState,
+        onSearchQueryChange = viewModel::onSearchQueryChange,
+        onSearch = viewModel::searchMovies,
+        onClearSearch = viewModel::clearSearch,
         onMovieClick = onMovieClick,
-        onRetry = viewModel::loadTrendingMovies,
-        onLogout = onLogout
+        onToggleWatchlist = viewModel::toggleWatchlist,
+        onRetry = {
+            if (uiState.isShowingSearchResults) {
+                viewModel.searchMovies()
+            } else {
+                viewModel.loadTrendingMovies()
+            }
+        }
     )
 }
 
@@ -58,95 +72,160 @@ fun MoviesHomePage(
 private fun MoviesHomeContent(
     userEmail: String?,
     uiState: MoviesUiState,
+    onSearchQueryChange: (String) -> Unit,
+    onSearch: () -> Unit,
+    onClearSearch: () -> Unit,
     onMovieClick: (Movie) -> Unit,
-    onRetry: () -> Unit,
-    onLogout: () -> Unit
+    onToggleWatchlist: (Movie) -> Unit,
+    onRetry: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(20.dp)
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .padding(horizontal = 20.dp, vertical = 16.dp)
     ) {
+        Spacer(modifier = Modifier.height(14.dp))
+
         Text(
             text = stringResource(R.string.home_title),
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         Text(
             text = stringResource(R.string.movies_home_subtitle),
             style = MaterialTheme.typography.bodyLarge
         )
 
-        userEmail?.let { email ->
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = stringResource(R.string.logged_in_as, email),
-                style = MaterialTheme.typography.bodyMedium
-            )
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Text(
+            text = userEmail?.let { email ->
+                stringResource(R.string.logged_in_as, email)
+            } ?: stringResource(R.string.guest_mode_label),
+            style = MaterialTheme.typography.bodyMedium
+        )
+
+        Spacer(modifier = Modifier.height(22.dp))
+
+        OutlinedTextField(
+            value = uiState.searchQuery,
+            onValueChange = onSearchQueryChange,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(stringResource(R.string.search_movies_label)) },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Outlined.Search,
+                    contentDescription = stringResource(R.string.search_movies_label)
+                )
+            },
+            trailingIcon = {
+                if (uiState.searchQuery.isNotBlank()) {
+                    IconButton(onClick = onClearSearch) {
+                        Icon(
+                            imageVector = Icons.Outlined.Clear,
+                            contentDescription = stringResource(R.string.clear_search_label)
+                        )
+                    }
+                }
+            }
+        )
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Button(
+                onClick = onSearch,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(stringResource(R.string.search_label))
+            }
+
+            OutlinedButton(
+                onClick = onClearSearch,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(stringResource(R.string.show_trending_label))
+            }
         }
 
         uiState.infoMessage?.let { message ->
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(18.dp))
             InfoCard(
                 message = message,
                 onRetry = onRetry
             )
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(34.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.trending_movies_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = stringResource(R.string.movies_count_label, uiState.movies.size),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
+        Text(
+            text = if (uiState.isShowingSearchResults) {
+                stringResource(R.string.search_results_title)
+            } else {
+                stringResource(R.string.trending_movies_title)
+            },
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
 
-            Button(onClick = onLogout) {
-                Text(stringResource(R.string.logout_btn))
-            }
-        }
+        Spacer(modifier = Modifier.height(4.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = stringResource(
+                R.string.movies_count_with_watchlist_label,
+                uiState.movies.size,
+                uiState.watchlistIds.size
+            ),
+            style = MaterialTheme.typography.bodyMedium
+        )
 
-        if (uiState.isLoading) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = 32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top
-            ) {
-                CircularProgressIndicator()
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = stringResource(R.string.loading_movies_label),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(uiState.movies, key = { movie -> movie.id }) { movie ->
-                    MovieListItem(
-                        movie = movie,
-                        onMovieClick = { onMovieClick(movie) }
+        Spacer(modifier = Modifier.height(18.dp))
+
+        when {
+            uiState.isLoading -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 40.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    CircularProgressIndicator()
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(R.string.loading_movies_label),
+                        style = MaterialTheme.typography.bodyMedium
                     )
+                }
+            }
+
+            uiState.movies.isEmpty() -> {
+                Text(
+                    text = stringResource(R.string.no_movies_found_label),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+
+            else -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(uiState.movies, key = { movie -> movie.id }) { movie ->
+                        MovieCard(
+                            movie = movie,
+                            onMovieClick = { onMovieClick(movie) },
+                            onToggleWatchlist = { onToggleWatchlist(movie) }
+                        )
+                    }
                 }
             }
         }
@@ -185,82 +264,6 @@ private fun InfoCard(
     }
 }
 
-@Composable
-private fun MovieListItem(
-    movie: Movie,
-    onMovieClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = movie.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
-
-                    movie.releaseDate?.let { releaseDate ->
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = stringResource(R.string.release_date_label, releaseDate),
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-                }
-
-                Surface(
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                    shape = MaterialTheme.shapes.small
-                ) {
-                    Text(
-                        text = stringResource(R.string.movie_rating_label, movie.voteAverage),
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-
-            if (movie.genres.isNotEmpty()) {
-                Text(
-                    text = movie.genres.joinToString(separator = " / "),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.secondary
-                )
-            }
-
-            Text(
-                text = movie.overview,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 4,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            OutlinedButton(
-                onClick = onMovieClick,
-                modifier = Modifier.align(Alignment.End)
-            ) {
-                Text(stringResource(R.string.movie_details_cta))
-            }
-        }
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
 private fun MoviesHomePagePreview() {
@@ -269,11 +272,15 @@ private fun MoviesHomePagePreview() {
             userEmail = "user@example.com",
             uiState = MoviesUiState(
                 isLoading = false,
-                movies = previewMovies
+                movies = previewMovies,
+                watchlistIds = setOf(previewMovies.first().id)
             ),
+            onSearchQueryChange = {},
+            onSearch = {},
+            onClearSearch = {},
             onMovieClick = {},
-            onRetry = {},
-            onLogout = {}
+            onToggleWatchlist = {},
+            onRetry = {}
         )
     }
 }
