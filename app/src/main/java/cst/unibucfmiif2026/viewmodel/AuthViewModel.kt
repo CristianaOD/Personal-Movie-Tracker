@@ -101,6 +101,16 @@ class AuthViewModel : ViewModel() {
         _authState.value = AuthState()
     }
 
+    fun sendPasswordReset(email: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        if (email.isBlank()) {
+            onError("Please enter your email address.")
+            return
+        }
+        auth.sendPasswordResetEmail(email)
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { error -> onError(error.toReadableMessage()) }
+    }
+
     private fun hasUsableFirebaseConfig(): Boolean {
         return runCatching {
             val apiKey = FirebaseApp.getInstance().options.apiKey.orEmpty()

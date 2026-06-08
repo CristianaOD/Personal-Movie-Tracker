@@ -3,6 +3,7 @@ package cst.unibucfmiif2026.ui.pages
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -30,6 +31,7 @@ fun LoginPage(
     onLoginClick: (email: String, password: String, onSuccess: () -> Unit) -> Unit = { _, _, _ -> },
     onLoginSuccess: () -> Unit = {},
     onGoogleSignIn: () -> Unit = {},
+    onForgotPassword: () -> Unit = {},
     onContinueAsGuest: () -> Unit = {},
     isLoading: Boolean = false,
     errorMessage: String? = null,
@@ -71,7 +73,7 @@ fun LoginPage(
                 emailError = null
                 onErrorDismiss()
             },
-            label = "EMAIL OR USERNAME",
+            label = "EMAIL",
             placeholder = "your@email.com",
             isError = emailError != null,
             errorMessage = emailError,
@@ -135,7 +137,24 @@ fun LoginPage(
             onClick = onContinueAsGuest
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            TextButton(
+                onClick = onForgotPassword,
+                contentPadding = PaddingValues(vertical = 4.dp, horizontal = 0.dp)
+            ) {
+                Text(
+                    text = "Forgot password?",
+                    color = LbBlue,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
 
 //        Row(horizontalArrangement = Arrangement.Center) {
 //            Text(

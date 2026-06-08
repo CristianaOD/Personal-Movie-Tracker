@@ -32,10 +32,13 @@ import cst.unibucfmiif2026.viewmodel.AuthViewModel
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.padding
+import cst.unibucfmiif2026.ui.pages.ForgotPasswordPage
 
 private object AuthRoute {
     const val Login = "login"
     const val Register = "register"
+
+    const val ForgotPassword = "forgot-password"
     const val Home = "home"
     const val Watchlist = "watchlist"
     const val Settings = "settings"
@@ -139,6 +142,7 @@ fun AuthNavigation(
                     onLoginSuccess = navigateToHome,
                     onContinueAsGuest = navigateToHome,
                     onGoogleSignIn = { onGoogleSignIn(navigateToHome) },
+                    onForgotPassword = { navController.navigate(AuthRoute.ForgotPassword) },
                     isLoading = authState.isLoading,
                     errorMessage = authState.errorMessage,
                     onErrorDismiss = authViewModel::clearError
@@ -155,6 +159,13 @@ fun AuthNavigation(
                     isLoading = authState.isLoading,
                     errorMessage = authState.errorMessage,
                     onErrorDismiss = authViewModel::clearError
+                )
+            }
+
+            composable(AuthRoute.ForgotPassword) {
+                ForgotPasswordPage(
+                    onBack = { navController.popBackStack() },
+                    onSendReset = authViewModel::sendPasswordReset
                 )
             }
 
