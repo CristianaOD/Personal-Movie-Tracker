@@ -7,7 +7,7 @@ class SettingsRepository(context: Context) {
         context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
 
     fun isDarkModeEnabled(): Boolean {
-        return sharedPreferences.getBoolean(KEY_DARK_MODE, false)
+        return sharedPreferences.getBoolean(KEY_DARK_MODE, true)
     }
 
     fun setDarkModeEnabled(enabled: Boolean) {

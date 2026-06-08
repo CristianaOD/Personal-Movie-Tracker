@@ -52,7 +52,8 @@ private data class MainDestination(
 fun AuthNavigation(
     isDarkModeEnabled: Boolean,
     onDarkModeChange: (Boolean) -> Unit,
-    authViewModel: AuthViewModel = viewModel()
+    authViewModel: AuthViewModel = viewModel(),
+    onGoogleSignIn: (onSuccess: () -> Unit) -> Unit = {}
 ) {
     val navController = rememberNavController()
     val authState by authViewModel.authState.collectAsState()
@@ -137,6 +138,7 @@ fun AuthNavigation(
                     onLoginClick = authViewModel::login,
                     onLoginSuccess = navigateToHome,
                     onContinueAsGuest = navigateToHome,
+                    onGoogleSignIn = { onGoogleSignIn(navigateToHome) },
                     isLoading = authState.isLoading,
                     errorMessage = authState.errorMessage,
                     onErrorDismiss = authViewModel::clearError
@@ -149,6 +151,7 @@ fun AuthNavigation(
                     onRegisterClick = authViewModel::register,
                     onRegisterSuccess = navigateToHome,
                     onContinueAsGuest = navigateToHome,
+                    onGoogleSignIn = { onGoogleSignIn(navigateToHome) },
                     isLoading = authState.isLoading,
                     errorMessage = authState.errorMessage,
                     onErrorDismiss = authViewModel::clearError

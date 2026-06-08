@@ -1,44 +1,20 @@
 package cst.unibucfmiif2026.ui.pages
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Password
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cst.unibucfmiif2026.R
-import cst.unibucfmiif2026.ui.theme.UniBucFMIIF2026Theme
+import cst.unibucfmiif2026.ui.theme.*
 import cst.unibucfmiif2026.utils.isValidEmail
 import cst.unibucfmiif2026.utils.isValidPassword
 
@@ -48,6 +24,7 @@ fun RegisterPage(
     onRegisterClick: (email: String, password: String, onSuccess: () -> Unit) -> Unit = { _, _, _ -> },
     onRegisterSuccess: () -> Unit = {},
     onContinueAsGuest: () -> Unit = {},
+    onGoogleSignIn: () -> Unit = {},
     isLoading: Boolean = false,
     errorMessage: String? = null,
     onErrorDismiss: () -> Unit = {}
@@ -63,154 +40,124 @@ fun RegisterPage(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
+            .background(LbBackground)
+            .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = stringResource(R.string.welcome),
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.primary
+        Spacer(modifier = Modifier.height(64.dp))
+
+        LbLogo()
+
+        Spacer(modifier = Modifier.height(40.dp))
+
+        LbTabRow(
+            selectedIndex = 1,
+            onLoginTab = onLoginClick,
+            onRegisterTab = {}
         )
 
-        Text(
-            text = stringResource(R.string.register_page),
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.primary
-        )
+        Spacer(modifier = Modifier.height(28.dp))
 
-        Spacer(modifier = Modifier.height(32.dp))
-
-        OutlinedTextField(
+        LbTextField(
             value = email,
-            onValueChange = { newValue ->
-                email = newValue
+            onValueChange = {
+                email = it
                 emailError = null
                 onErrorDismiss()
             },
-            label = { Text(stringResource(R.string.email)) },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Email,
-                    contentDescription = stringResource(R.string.email)
-                )
-            },
+            label = "EMAIL",
+            placeholder = "your@email.com",
             isError = emailError != null,
-            supportingText = emailError?.let { currentError ->
-                { Text(currentError) }
-            },
-            singleLine = true,
+            errorMessage = emailError,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Email,
                 imeAction = ImeAction.Next
-            ),
-            modifier = Modifier.fillMaxWidth()
+            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
+        LbPasswordField(
             value = password,
-            onValueChange = { newValue ->
-                password = newValue
+            onValueChange = {
+                password = it
                 passwordError = null
                 onErrorDismiss()
             },
-            label = { Text(stringResource(R.string.password)) },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Password,
-                    contentDescription = stringResource(R.string.password)
-                )
-            },
-            trailingIcon = {
-                IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
-                    Icon(
-                        imageVector = if (isPasswordVisible) {
-                            Icons.Default.VisibilityOff
-                        } else {
-                            Icons.Default.Visibility
-                        },
-                        contentDescription = stringResource(R.string.password_visibility_toggle)
-                    )
-                }
-            },
+            label = "PASSWORD",
+            isVisible = isPasswordVisible,
+            onToggleVisibility = { isPasswordVisible = !isPasswordVisible },
             isError = passwordError != null,
-            supportingText = passwordError?.let { currentError ->
-                { Text(currentError) }
-            },
-            visualTransformation = if (isPasswordVisible) {
-                VisualTransformation.None
-            } else {
-                PasswordVisualTransformation()
-            },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Done
-            ),
-            modifier = Modifier.fillMaxWidth()
+            errorMessage = passwordError,
+            showStrength = true
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        errorMessage?.let {
+            Spacer(modifier = Modifier.height(12.dp))
+            LbErrorMessage(message = it)
+        }
 
-        Button(
+        Spacer(modifier = Modifier.height(24.dp))
+
+        LbPrimaryButton(
+            text = if (isLoading) "" else "CREATE ACCOUNT",
             onClick = {
                 var isValid = true
-
                 if (!email.isValidEmail()) {
                     emailError = invalidEmailMessage
                     isValid = false
                 }
-
                 if (!password.isValidPassword()) {
                     passwordError = invalidPasswordMessage
                     isValid = false
                 }
-
-                if (isValid) {
-                    onRegisterClick(email, password, onRegisterSuccess)
-                }
+                if (isValid) onRegisterClick(email, password, onRegisterSuccess)
             },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !isLoading
-        ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                    strokeWidth = 2.dp
-                )
-            } else {
-                Text(stringResource(R.string.register))
-            }
-        }
-
-        errorMessage?.let { currentError ->
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Bold,
-                text = currentError
-            )
-        }
+            isLoading = isLoading
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        TextButton(onClick = onLoginClick) {
-            Text(stringResource(R.string.goto_login))
-        }
+        LbDivider()
 
-        TextButton(onClick = onContinueAsGuest) {
-            Text(stringResource(R.string.continue_as_guest))
-        }
+        Spacer(modifier = Modifier.height(16.dp))
+        LbGoogleButton(onClick = onGoogleSignIn)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        LbSecondaryButton(
+            text = "CONTINUE AS GUEST",
+            onClick = onContinueAsGuest
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+//        Row(
+//            horizontalArrangement = Arrangement.Center,
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+//            Text(
+//                text = "Already a member? ",
+//                color = LbTextSecondary,
+//                fontSize = 13.sp
+//            )
+//            TextButton(
+//                onClick = onLoginClick,
+//                contentPadding = PaddingValues(0.dp)
+//            ) {
+//                Text(
+//                    text = "Sign in",
+//                    color = LbBlue,
+//                    fontSize = 13.sp,
+//                    fontWeight = FontWeight.SemiBold
+//                )
+//            }
+//        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun RegisterPagePreview() {
-    UniBucFMIIF2026Theme {
-        RegisterPage()
-    }
+    RegisterPage()
 }

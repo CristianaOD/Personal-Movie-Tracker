@@ -1,12 +1,19 @@
 package cst.unibucfmiif2026.viewmodel
 
+import android.content.Intent
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -37,7 +44,6 @@ class AuthViewModel : ViewModel() {
             _authState.value = AuthState(errorMessage = FIREBASE_CONFIG_ERROR)
             return
         }
-
         _authState.value = AuthState(isLoading = true)
         auth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener {
@@ -54,7 +60,6 @@ class AuthViewModel : ViewModel() {
             _authState.value = AuthState(errorMessage = FIREBASE_CONFIG_ERROR)
             return
         }
-
         _authState.value = AuthState(isLoading = true)
         auth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener {
@@ -64,6 +69,31 @@ class AuthViewModel : ViewModel() {
             .addOnFailureListener { error ->
                 _authState.value = AuthState(errorMessage = error.toReadableMessage())
             }
+    }
+
+    fun getGoogleSignInIntent(googleSignInClient: GoogleSignInClient): Intent {
+        return googleSignInClient.signInIntent
+    }
+
+    fun handleGoogleSignInResult(data: Intent?, onSuccess: () -> Unit) {
+        _authState.value = AuthState(isLoading = true)
+        try {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            val account: GoogleSignInAccount = task.getResult(ApiException::class.java)
+            val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+            auth.signInWithCredential(credential)
+                .addOnSuccessListener {
+                    _authState.value = AuthState()
+                    onSuccess()
+                }
+                .addOnFailureListener { error ->
+                    _authState.value = AuthState(errorMessage = error.toReadableMessage())
+                }
+        } catch (e: ApiException) {
+            _authState.value = AuthState(
+                errorMessage = "Google sign-in failed (code ${e.statusCode}). Try again."
+            )
+        }
     }
 
     fun logout() {
