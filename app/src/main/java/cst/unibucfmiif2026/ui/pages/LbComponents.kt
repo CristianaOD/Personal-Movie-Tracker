@@ -29,7 +29,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cst.unibucfmiif2026.ui.theme.*
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
+import cst.unibucfmiif2026.movie.network.TmdbImageUrlBuilder
 
 @Composable
 fun LbLogo() {
@@ -432,6 +437,51 @@ fun LbGoogleButton(onClick: () -> Unit) {
             fontWeight = FontWeight.SemiBold,
             fontSize = 13.sp,
             letterSpacing = 0.6.sp
+        )
+    }
+}
+
+@Composable
+fun PosterCollageBackground(posterPaths: List<String>) {
+    if (posterPaths.isEmpty()) return
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Grid de postere
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            modifier = Modifier.fillMaxSize(),
+            userScrollEnabled = false,
+            contentPadding = PaddingValues(0.dp),
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            items(count = 18) { index ->
+                val path = posterPaths[index % posterPaths.size]
+                val url = TmdbImageUrlBuilder.posterUrl(path)
+                AsyncImage(
+                    model = url,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp),
+                    contentScale = ContentScale.Crop
+                )
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                        colorStops = arrayOf(
+                            0.0f to LbBackground.copy(alpha = 0.55f),
+                            0.4f to LbBackground.copy(alpha = 0.75f),
+                            0.7f to LbBackground.copy(alpha = 0.92f),
+                            1.0f to LbBackground
+                        )
+                    )
+                )
         )
     }
 }

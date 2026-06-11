@@ -2,6 +2,7 @@ package cst.unibucfmiif2026.viewmodel
 
 import android.content.Intent
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -16,6 +17,7 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 data class AuthState(
     val isLoading: Boolean = false,
@@ -26,6 +28,30 @@ class AuthViewModel : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val _authState = MutableStateFlow(AuthState())
     val authState = _authState.asStateFlow()
+
+    private val _posterPaths = MutableStateFlow<List<String>>(emptyList())
+    val posterPaths = _posterPaths.asStateFlow()
+
+    init {
+        loadPosters()
+    }
+
+    private fun loadPosters() {
+        viewModelScope.launch {
+            val apiKey = cst.unibucfmiif2026.BuildConfig.TMDB_API_KEY
+            if (apiKey.isBlank()) return@launch
+            runCatching {
+                cst.unibucfmiif2026.movie.network.TmdbRetrofitClient.api
+                    .getTrendingMovies(apiKey = apiKey)
+                    .results
+                    .orEmpty()
+                    .mapNotNull { it.posterPath }
+                    .take(12)
+            }.onSuccess { paths ->
+                _posterPaths.value = paths
+            }
+        }
+    }
 
     val isLoggedIn: Boolean
         get() = auth.currentUser != null

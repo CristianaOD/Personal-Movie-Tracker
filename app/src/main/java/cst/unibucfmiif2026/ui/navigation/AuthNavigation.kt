@@ -33,8 +33,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.padding
 import cst.unibucfmiif2026.ui.pages.ForgotPasswordPage
+import cst.unibucfmiif2026.ui.pages.MovieTrackerSplashScreen
 
 private object AuthRoute {
+    const val Splash = "splash"
     const val Login = "login"
     const val Register = "register"
 
@@ -62,7 +64,7 @@ fun AuthNavigation(
     val authState by authViewModel.authState.collectAsState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-    val startDestination = if (authViewModel.isLoggedIn) AuthRoute.Home else AuthRoute.Login
+    val startDestination = AuthRoute.Splash
 
     val mainDestinations = listOf(
         MainDestination(AuthRoute.Home, R.string.nav_home_label, Icons.Outlined.Home),
@@ -135,6 +137,24 @@ fun AuthNavigation(
             startDestination = startDestination,
             modifier = Modifier.padding(innerPadding)
         ) {
+            composable(AuthRoute.Splash) {
+                val posterPaths by authViewModel.posterPaths.collectAsState()
+                MovieTrackerSplashScreen(
+                    posterPaths = posterPaths,
+                    onSplashFinished = {
+                        if (authViewModel.isLoggedIn) {
+                            navController.navigate(AuthRoute.Home) {
+                                popUpTo(AuthRoute.Splash) { inclusive = true }
+                            }
+                        } else {
+                            navController.navigate(AuthRoute.Login) {
+                                popUpTo(AuthRoute.Splash) { inclusive = true }
+                            }
+                        }
+                    }
+                )
+            }
+
             composable(AuthRoute.Login) {
                 LoginPage(
                     onRegisterClick = { navController.navigate(AuthRoute.Register) },
