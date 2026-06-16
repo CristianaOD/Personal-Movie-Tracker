@@ -2,8 +2,11 @@ package cst.unibucfmiif2026.movie.data
 
 import cst.unibucfmiif2026.BuildConfig
 import cst.unibucfmiif2026.movie.data.local.MovieDao
+import cst.unibucfmiif2026.movie.data.local.WatchedMovieDao
+import cst.unibucfmiif2026.movie.data.local.WatchedMovieEntity
 import cst.unibucfmiif2026.movie.data.local.toEntity
 import cst.unibucfmiif2026.movie.data.local.toMovie
+import cst.unibucfmiif2026.movie.data.local.toWatchedEntity
 import cst.unibucfmiif2026.movie.model.Movie
 import cst.unibucfmiif2026.movie.network.TmdbRetrofitClient
 import cst.unibucfmiif2026.movie.network.dto.toMovie
@@ -23,7 +26,8 @@ data class MovieDetailsResult(
 )
 
 class MoviesRepository(
-    private val movieDao: MovieDao
+    private val movieDao: MovieDao,
+    private val watchedMovieDao: WatchedMovieDao
 ) {
     fun observeWatchlistMovies(): Flow<List<Movie>> {
         return movieDao.observeWatchlistMovies()
@@ -131,6 +135,49 @@ class MoviesRepository(
         } else {
             addToWatchlist(movie)
         }
+    }
+
+    // functii pt watched movies
+    fun observeWatchedMovies(): Flow<List<WatchedMovieEntity>> {
+        return watchedMovieDao.observeAll()
+    }
+
+    fun observeWatchedMoviesSortedByRating(): Flow<List<WatchedMovieEntity>> {
+        return watchedMovieDao.observeAllSortedByRating()
+    }
+
+    fun observeFavorites(): Flow<List<WatchedMovieEntity>> {
+        return watchedMovieDao.observeFavorites()
+    }
+
+    fun observeWatchedIds(): Flow<Set<Int>> {
+        return watchedMovieDao.observeWatchedIds()
+            .map { it.toSet() }
+    }
+
+    suspend fun getWatchedMovie(movieId: Int): WatchedMovieEntity? {
+        return watchedMovieDao.getById(movieId)
+    }
+
+    suspend fun saveReview(movie: Movie, rating: Int, comment: String) {
+        val existing = watchedMovieDao.getById(movie.id)
+        if (existing != null) {
+            watchedMovieDao.updateReview(movie.id, rating, comment)
+        } else {
+            watchedMovieDao.insert(
+                movie.toWatchedEntity(rating = rating, comment = comment)
+            )
+        }
+        movieDao.deleteById(movie.id)
+    }
+
+    suspend fun toggleFavorite(movieId: Int) {
+        val existing = watchedMovieDao.getById(movieId) ?: return
+        watchedMovieDao.updateFavorite(movieId, !existing.isFavorite)
+    }
+
+    suspend fun deleteWatchedMovie(movieId: Int) {
+        watchedMovieDao.deleteById(movieId)
     }
 
     private fun Throwable.toReadableTmdbMessage(): String {

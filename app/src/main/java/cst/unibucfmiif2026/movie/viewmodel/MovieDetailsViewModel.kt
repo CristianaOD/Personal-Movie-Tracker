@@ -29,8 +29,12 @@ class MovieDetailsViewModel(
     private val _uiState = MutableStateFlow(MovieDetailsUiState())
     val uiState = _uiState.asStateFlow()
 
+    private val _watchedMovie = MutableStateFlow<cst.unibucfmiif2026.movie.data.local.WatchedMovieEntity?>(null)
+    val watchedMovie = _watchedMovie.asStateFlow()
+
     init {
         observeWatchlistIds()
+        observeWatchedMovie()
         loadMovieDetails()
     }
 
@@ -69,6 +73,40 @@ class MovieDetailsViewModel(
                     )
                 }
             }
+        }
+    }
+
+    private fun observeWatchedMovie() {
+        viewModelScope.launch {
+            repository.observeWatchedIds().collect { ids ->
+                if (ids.contains(movieId)) {
+                    _watchedMovie.value = repository.getWatchedMovie(movieId)
+                } else {
+                    _watchedMovie.value = null
+                }
+            }
+        }
+    }
+
+    fun saveReview(rating: Int, comment: String) {
+        val movie = uiState.value.movie ?: return
+        viewModelScope.launch {
+            repository.saveReview(movie, rating, comment)
+            _watchedMovie.value = repository.getWatchedMovie(movieId)
+        }
+    }
+
+    fun toggleFavorite() {
+        viewModelScope.launch {
+            repository.toggleFavorite(movieId)
+            _watchedMovie.value = repository.getWatchedMovie(movieId)
+        }
+    }
+
+    fun deleteReview() {
+        viewModelScope.launch {
+            repository.deleteWatchedMovie(movieId)
+            _watchedMovie.value = null
         }
     }
 

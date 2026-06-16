@@ -11,7 +11,10 @@ class PersonalMovieTrackerApp : Application() {
     }
 
     val moviesRepository: MoviesRepository by lazy {
-        MoviesRepository(appDatabase.movieDao())
+        MoviesRepository(
+            appDatabase.movieDao(),
+            watchedMovieDao = appDatabase.watchedMovieDao()
+        )
     }
 
     val settingsRepository: SettingsRepository by lazy {

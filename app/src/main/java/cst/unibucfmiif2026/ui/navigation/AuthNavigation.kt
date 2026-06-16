@@ -32,8 +32,10 @@ import cst.unibucfmiif2026.viewmodel.AuthViewModel
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.outlined.MovieFilter
 import cst.unibucfmiif2026.ui.pages.ForgotPasswordPage
 import cst.unibucfmiif2026.ui.pages.MovieTrackerSplashScreen
+import cst.unibucfmiif2026.ui.pages.MyMoviesPage
 
 private object AuthRoute {
     const val Splash = "splash"
@@ -45,6 +47,8 @@ private object AuthRoute {
     const val Watchlist = "watchlist"
     const val Settings = "settings"
     const val MovieDetails = "movie-details"
+
+    const val MyMovies = "my-movies"
 }
 
 private data class MainDestination(
@@ -69,6 +73,7 @@ fun AuthNavigation(
     val mainDestinations = listOf(
         MainDestination(AuthRoute.Home, R.string.nav_home_label, Icons.Outlined.Home),
         MainDestination(AuthRoute.Watchlist, R.string.nav_watchlist_label, Icons.Outlined.BookmarkBorder),
+        MainDestination(AuthRoute.MyMovies, R.string.nav_my_movies_label, Icons.Outlined.MovieFilter),
         MainDestination(AuthRoute.Settings, R.string.nav_settings_label, Icons.Outlined.Settings)
     )
 
@@ -126,7 +131,7 @@ fun AuthNavigation(
                             label = {
                                 Text(stringResource(destination.labelResId))
                             }
-                        )
+                        ) 
                     }
                 }
             }
@@ -202,6 +207,14 @@ fun AuthNavigation(
                 WatchlistPage(
                     onMovieClick = { movie ->
                         navController.navigate("${AuthRoute.MovieDetails}/${movie.id}")
+                    }
+                )
+            }
+
+            composable(AuthRoute.MyMovies) {
+                MyMoviesPage(
+                    onMovieClick = { movieId ->
+                        navController.navigate("${AuthRoute.MovieDetails}/$movieId")
                     }
                 )
             }
