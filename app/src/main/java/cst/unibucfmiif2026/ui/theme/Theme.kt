@@ -8,8 +8,12 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+
+val LocalAppDarkMode = staticCompositionLocalOf { false }
 
 private val DarkColorScheme = darkColorScheme(
 	primary = CinemaGold,
@@ -32,23 +36,24 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-	primary = MovieBlue,
-	onPrimary = ColorWhitePure,
-	secondary = MovieSlate,
+	primary = SoftCinemaGreen,
+	onPrimary = SoftCinemaGreenDark,
+	secondary = SoftCinemaTextMuted,
 	onSecondary = ColorWhitePure,
-	tertiary = MovieBlueDark,
-	background = MovieBackground,
-	onBackground = Ink900,
-	surface = MovieSurface,
-	onSurface = Ink900,
-	surfaceVariant = MovieSurfaceVariant,
-	onSurfaceVariant = Ink700,
-	secondaryContainer = MovieSky,
-	onSecondaryContainer = MovieBlueDark,
-	outline = MovieOutline,
-	surfaceContainer = MovieSurface,
-	surfaceContainerHigh = Color(0xFFF0F3FA),
-	surfaceContainerHighest = MovieSurfaceVariant
+	tertiary = SoftCinemaOrange,
+	onTertiary = SoftCinemaText,
+	background = SoftCinemaBackground,
+	onBackground = SoftCinemaText,
+	surface = SoftCinemaSurface,
+	onSurface = SoftCinemaText,
+	surfaceVariant = SoftCinemaSurfaceVariant,
+	onSurfaceVariant = SoftCinemaTextMuted,
+	secondaryContainer = SoftCinemaSurfaceRaised,
+	onSecondaryContainer = SoftCinemaText,
+	outline = SoftCinemaOutline,
+	surfaceContainer = SoftCinemaSurface,
+	surfaceContainerHigh = SoftCinemaSurfaceRaised,
+	surfaceContainerHighest = SoftCinemaSurfaceVariant
 
 	/* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -78,9 +83,11 @@ fun UniBucFMIIF2026Theme(
 		else -> LightColorScheme
 	}
 
-	MaterialTheme(
-		colorScheme = colorScheme,
-		typography = Typography,
-		content = content
-	)
+	CompositionLocalProvider(LocalAppDarkMode provides darkTheme) {
+		MaterialTheme(
+			colorScheme = colorScheme,
+			typography = Typography,
+			content = content
+		)
+	}
 }
