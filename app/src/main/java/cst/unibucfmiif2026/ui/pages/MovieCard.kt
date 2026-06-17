@@ -15,11 +15,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.rounded.Bookmark
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,16 +27,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import cst.unibucfmiif2026.R
 import cst.unibucfmiif2026.movie.model.Movie
 import cst.unibucfmiif2026.movie.network.TmdbImageUrlBuilder
+import cst.unibucfmiif2026.ui.theme.LbBorder
+import cst.unibucfmiif2026.ui.theme.LbGreen
+import cst.unibucfmiif2026.ui.theme.LbSurface
+import cst.unibucfmiif2026.ui.theme.LbSurfaceRaised
+import cst.unibucfmiif2026.ui.theme.LbTextMuted
+import cst.unibucfmiif2026.ui.theme.LbTextPrimary
+import cst.unibucfmiif2026.ui.theme.LbTextSecondary
 
 @Composable
 fun MovieCard(
@@ -48,8 +57,9 @@ fun MovieCard(
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
-        )
+            containerColor = LbSurface
+        ),
+        shape = RoundedCornerShape(4.dp)
     ) {
         Row(
             modifier = Modifier
@@ -80,28 +90,31 @@ fun MovieCard(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = movie.title,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = LbTextPrimary
                         )
 
                         movie.releaseDate?.let { releaseDate ->
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = stringResource(R.string.release_date_label, releaseDate),
-                                style = MaterialTheme.typography.bodySmall
+                                fontSize = 11.sp,
+                                color = LbTextMuted
                             )
                         }
                     }
 
                     Surface(
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                        shape = MaterialTheme.shapes.small
+                        color = LbGreen.copy(alpha = 0.12f),
+                        shape = RoundedCornerShape(3.dp)
                     ) {
                         Text(
                             text = stringResource(R.string.movie_rating_label, movie.voteAverage),
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = LbGreen
                         )
                     }
                 }
@@ -109,14 +122,16 @@ fun MovieCard(
                 if (movie.genres.isNotEmpty()) {
                     Text(
                         text = movie.genres.joinToString(separator = " / "),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.secondary
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = LbTextSecondary
                     )
                 }
 
                 Text(
                     text = movie.overview,
-                    style = MaterialTheme.typography.bodyMedium,
+                    fontSize = 12.sp,
+                    color = LbTextSecondary,
                     maxLines = 4,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -135,15 +150,24 @@ fun MovieCard(
                             },
                             contentDescription = stringResource(R.string.toggle_watchlist_label),
                             tint = if (movie.isInWatchlist) {
-                                MaterialTheme.colorScheme.primary
+                                LbGreen
                             } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
+                                LbTextMuted
                             }
                         )
                     }
 
-                    OutlinedButton(onClick = onMovieClick) {
-                        Text(stringResource(R.string.movie_details_cta))
+                    OutlinedButton(
+                        onClick = onMovieClick,
+                        shape = RoundedCornerShape(4.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = LbTextPrimary),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, LbBorder)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.movie_details_cta),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
@@ -171,12 +195,13 @@ fun MoviePoster(
         Box(
             modifier = modifier
                 .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.secondaryContainer),
+                .background(LbSurfaceRaised),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = stringResource(R.string.no_poster_label),
-                style = MaterialTheme.typography.labelLarge,
+                fontSize = 12.sp,
+                color = LbTextMuted,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(12.dp)
             )
