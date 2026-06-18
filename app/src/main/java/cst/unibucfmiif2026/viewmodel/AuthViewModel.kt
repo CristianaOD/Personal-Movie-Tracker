@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -58,6 +59,9 @@ class AuthViewModel : ViewModel() {
 
     val currentUserEmail: String?
         get() = auth.currentUser?.email
+
+    val currentUserDisplayName: String?
+        get() = auth.currentUser?.displayName
 
     fun clearError() {
         if (_authState.value.errorMessage != null) {
@@ -133,6 +137,33 @@ class AuthViewModel : ViewModel() {
             return
         }
         auth.sendPasswordResetEmail(email)
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { error -> onError(error.toReadableMessage()) }
+    }
+
+    fun updateDisplayName(
+        displayName: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val user = auth.currentUser
+        val trimmedName = displayName.trim()
+
+        if (user == null) {
+            onError("Sign in before updating your profile.")
+            return
+        }
+
+        if (trimmedName.length < 2) {
+            onError("Display name must contain at least 2 characters.")
+            return
+        }
+
+        val profileUpdates = UserProfileChangeRequest.Builder()
+            .setDisplayName(trimmedName)
+            .build()
+
+        user.updateProfile(profileUpdates)
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { error -> onError(error.toReadableMessage()) }
     }

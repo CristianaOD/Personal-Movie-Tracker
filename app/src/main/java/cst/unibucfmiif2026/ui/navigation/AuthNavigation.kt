@@ -3,7 +3,7 @@ package cst.unibucfmiif2026.ui.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -74,7 +74,7 @@ fun AuthNavigation(
         MainDestination(AuthRoute.Home, R.string.nav_home_label, Icons.Outlined.Home),
         MainDestination(AuthRoute.Watchlist, R.string.nav_watchlist_label, Icons.Outlined.BookmarkBorder),
         MainDestination(AuthRoute.MyMovies, R.string.nav_my_movies_label, Icons.Outlined.MovieFilter),
-        MainDestination(AuthRoute.Settings, R.string.nav_settings_label, Icons.Outlined.Settings)
+        MainDestination(AuthRoute.Settings, R.string.nav_settings_label, Icons.Outlined.Person)
     )
 
     val showBottomBar = mainDestinations.any { destination ->
@@ -221,10 +221,12 @@ fun AuthNavigation(
 
             composable(AuthRoute.Settings) {
                 SettingsPage(
+                    displayName = authViewModel.currentUserDisplayName,
                     userEmail = authViewModel.currentUserEmail,
                     isLoggedIn = authViewModel.isLoggedIn,
                     isDarkModeEnabled = isDarkModeEnabled,
                     onDarkModeChange = onDarkModeChange,
+                    onUpdateDisplayName = authViewModel::updateDisplayName,
                     onLogout = navigateToLogin
                 )
             }

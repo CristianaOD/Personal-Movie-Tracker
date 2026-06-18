@@ -58,14 +58,14 @@
     <string name="movie_details_not_found" translatable="false">Movie details could not be loaded.</string>
     <string name="movie_rating_details_label" translatable="false">Rating: %.1f (%2$d votes)</string>
     <string name="movie_overview_label" translatable="false">Overview</string>
-    <string name="settings_title" translatable="false">Settings &amp; Account</string>
-    <string name="settings_subtitle" translatable="false">Manage appearance and account access from one place.</string>
+    <string name="settings_title" translatable="false">Profile</string>
+    <string name="settings_subtitle" translatable="false">Account details and app preferences.</string>
     <string name="appearance_section_title" translatable="false">Appearance</string>
     <string name="account_section_title" translatable="false">My account</string>
     <string name="account_status_logged_in" translatable="false">Signed in with Firebase</string>
     <string name="account_status_guest" translatable="false">Browsing as guest</string>
     <string name="nav_home_label" translatable="false">Home</string>
     <string name="nav_watchlist_label" translatable="false">Watchlist</string>
-    <string name="nav_settings_label" translatable="false">Settings</string>
+    <string name="nav_settings_label" translatable="false">Profile</string>
     <string name="nav_my_movies_label" translatable="false">My Movies</string>
 </resources>
