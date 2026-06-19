@@ -1,12 +1,12 @@
 package cst.unibucfmiif2026.movie.data.local
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 import cst.unibucfmiif2026.movie.model.Movie
 
-@Entity(tableName = "watchlist_movies")
+@Entity(tableName = "watchlist_movies", primaryKeys = ["id", "userId"])
 data class MovieEntity(
-    @PrimaryKey val id: Int,
+    val id: Int,
+    val userId: String,
     val title: String,
     val overview: String,
     val releaseDate: String?,
@@ -18,9 +18,10 @@ data class MovieEntity(
     val addedAt: Long
 )
 
-fun Movie.toEntity(): MovieEntity {
+fun Movie.toEntity(userId: String): MovieEntity {
     return MovieEntity(
         id = id,
+        userId = userId,
         title = title,
         overview = overview,
         releaseDate = releaseDate,
@@ -45,7 +46,7 @@ fun MovieEntity.toMovie(): Movie {
         voteCount = voteCount,
         genres = genresSerialized
             .takeIf { value -> value.isNotBlank() }
-            ?.split("|")
+            ?.split("\\|".toRegex())
             .orEmpty(),
         isInWatchlist = true
     )

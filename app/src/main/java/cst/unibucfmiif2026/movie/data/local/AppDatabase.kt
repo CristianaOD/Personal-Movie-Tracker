@@ -9,7 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [MovieEntity::class, WatchedMovieEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -20,11 +20,31 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var instance: AppDatabase? = null
 
-        private val MIGRATION_1_2 = object : Migration(1, 2) {
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS watchlist_movies")
                 db.execSQL("""
-                    CREATE TABLE IF NOT EXISTS watched_movies (
-                        movieId INTEGER PRIMARY KEY NOT NULL,
+                    CREATE TABLE watchlist_movies (
+                        id INTEGER NOT NULL,
+                        userId TEXT NOT NULL,
+                        title TEXT NOT NULL,
+                        overview TEXT NOT NULL,
+                        releaseDate TEXT,
+                        posterPath TEXT,
+                        backdropPath TEXT,
+                        voteAverage REAL NOT NULL,
+                        voteCount INTEGER NOT NULL,
+                        genresSerialized TEXT NOT NULL,
+                        addedAt INTEGER NOT NULL,
+                        PRIMARY KEY (id, userId)
+                    )
+                """.trimIndent())
+
+                db.execSQL("DROP TABLE IF EXISTS watched_movies")
+                db.execSQL("""
+                    CREATE TABLE watched_movies (
+                        movieId INTEGER NOT NULL,
+                        userId TEXT NOT NULL,
                         title TEXT NOT NULL,
                         overview TEXT NOT NULL,
                         posterPath TEXT,
@@ -35,7 +55,8 @@ abstract class AppDatabase : RoomDatabase() {
                         rating INTEGER NOT NULL,
                         comment TEXT NOT NULL,
                         isFavorite INTEGER NOT NULL,
-                        watchedAt INTEGER NOT NULL
+                        watchedAt INTEGER NOT NULL,
+                        PRIMARY KEY (movieId, userId)
                     )
                 """.trimIndent())
             }
@@ -48,7 +69,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "personal_movie_tracker.db"
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_2_3)
+                    .fallbackToDestructiveMigration()
                     .build()
                     .also { instance = it }
             }

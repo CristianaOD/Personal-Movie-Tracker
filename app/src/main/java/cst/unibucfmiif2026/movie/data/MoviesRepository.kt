@@ -11,6 +11,7 @@ import cst.unibucfmiif2026.movie.model.Movie
 import cst.unibucfmiif2026.movie.network.TmdbRetrofitClient
 import cst.unibucfmiif2026.movie.network.dto.toMovie
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import java.io.IOException
@@ -27,15 +28,19 @@ data class MovieDetailsResult(
 
 class MoviesRepository(
     private val movieDao: MovieDao,
-    private val watchedMovieDao: WatchedMovieDao
+    private val watchedMovieDao: WatchedMovieDao,
+    private val currentUserId: () -> String
 ) {
+    private val userId: String
+        get() = currentUserId()
+
     fun observeWatchlistMovies(): Flow<List<Movie>> {
-        return movieDao.observeWatchlistMovies()
+        return movieDao.observeWatchlistMovies(userId)
             .map { entities -> entities.map { entity -> entity.toMovie() } }
     }
 
     fun observeWatchlistIds(): Flow<Set<Int>> {
-        return movieDao.observeWatchlistIds()
+        return movieDao.observeWatchlistIds(userId)
             .map { ids -> ids.toSet() }
     }
 
@@ -69,7 +74,6 @@ class MoviesRepository(
             val filteredPreviewMovies = previewMovies.filter { movie ->
                 movie.title.contains(query, ignoreCase = true)
             }
-
             return MoviesResult(
                 movies = filteredPreviewMovies,
                 infoMessage = "TMDB API key is not configured yet. Showing preview search results."
@@ -96,7 +100,7 @@ class MoviesRepository(
 
     suspend fun getMovieDetails(movieId: Int): MovieDetailsResult {
         val apiKey = BuildConfig.TMDB_API_KEY
-        val watchlistMovie = movieDao.getById(movieId)?.toMovie()
+        val watchlistMovie = movieDao.getById(movieId, userId)?.toMovie()
         val previewMovie = previewMovies.firstOrNull { movie -> movie.id == movieId }
         val fallbackMovie = watchlistMovie ?: previewMovie
 
@@ -122,11 +126,11 @@ class MoviesRepository(
     }
 
     suspend fun addToWatchlist(movie: Movie) {
-        movieDao.insert(movie.copy(isInWatchlist = true).toEntity())
+        movieDao.insert(movie.copy(isInWatchlist = true).toEntity(userId))
     }
 
     suspend fun removeFromWatchlist(movieId: Int) {
-        movieDao.deleteById(movieId)
+        movieDao.deleteById(movieId, userId)
     }
 
     suspend fun toggleWatchlist(movie: Movie) {
@@ -137,47 +141,46 @@ class MoviesRepository(
         }
     }
 
-    // functii pt watched movies
     fun observeWatchedMovies(): Flow<List<WatchedMovieEntity>> {
-        return watchedMovieDao.observeAll()
+        return watchedMovieDao.observeAll(userId)
     }
 
     fun observeWatchedMoviesSortedByRating(): Flow<List<WatchedMovieEntity>> {
-        return watchedMovieDao.observeAllSortedByRating()
+        return watchedMovieDao.observeAllSortedByRating(userId)
     }
 
     fun observeFavorites(): Flow<List<WatchedMovieEntity>> {
-        return watchedMovieDao.observeFavorites()
+        return watchedMovieDao.observeFavorites(userId)
     }
 
     fun observeWatchedIds(): Flow<Set<Int>> {
-        return watchedMovieDao.observeWatchedIds()
+        return watchedMovieDao.observeWatchedIds(userId)
             .map { it.toSet() }
     }
 
     suspend fun getWatchedMovie(movieId: Int): WatchedMovieEntity? {
-        return watchedMovieDao.getById(movieId)
+        return watchedMovieDao.getById(movieId, userId)
     }
 
     suspend fun saveReview(movie: Movie, rating: Int, comment: String) {
-        val existing = watchedMovieDao.getById(movie.id)
+        val existing = watchedMovieDao.getById(movie.id, userId)
         if (existing != null) {
-            watchedMovieDao.updateReview(movie.id, rating, comment)
+            watchedMovieDao.updateReview(movie.id, userId, rating, comment)
         } else {
             watchedMovieDao.insert(
-                movie.toWatchedEntity(rating = rating, comment = comment)
+                movie.toWatchedEntity(userId = userId, rating = rating, comment = comment)
             )
         }
-        movieDao.deleteById(movie.id)
+        movieDao.deleteById(movie.id, userId)
     }
 
     suspend fun toggleFavorite(movieId: Int) {
-        val existing = watchedMovieDao.getById(movieId) ?: return
-        watchedMovieDao.updateFavorite(movieId, !existing.isFavorite)
+        val existing = watchedMovieDao.getById(movieId, userId) ?: return
+        watchedMovieDao.updateFavorite(movieId, userId, !existing.isFavorite)
     }
 
     suspend fun deleteWatchedMovie(movieId: Int) {
-        watchedMovieDao.deleteById(movieId)
+        watchedMovieDao.deleteById(movieId, userId)
     }
 
     private fun Throwable.toReadableTmdbMessage(): String {
@@ -193,7 +196,6 @@ class MoviesRepository(
                     }
                 }
             }
-
             is IOException -> "Network error (${localizedMessage ?: "check internet connection"})"
             else -> localizedMessage ?: this::class.java.simpleName
         }

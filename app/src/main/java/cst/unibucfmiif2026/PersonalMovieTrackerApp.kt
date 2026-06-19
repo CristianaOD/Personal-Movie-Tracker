@@ -1,6 +1,7 @@
 package cst.unibucfmiif2026
 
 import android.app.Application
+import com.google.firebase.auth.FirebaseAuth
 import cst.unibucfmiif2026.movie.data.MoviesRepository
 import cst.unibucfmiif2026.movie.data.local.AppDatabase
 import cst.unibucfmiif2026.settings.SettingsRepository
@@ -12,8 +13,11 @@ class PersonalMovieTrackerApp : Application() {
 
     val moviesRepository: MoviesRepository by lazy {
         MoviesRepository(
-            appDatabase.movieDao(),
-            watchedMovieDao = appDatabase.watchedMovieDao()
+            movieDao = appDatabase.movieDao(),
+            watchedMovieDao = appDatabase.watchedMovieDao(),
+            currentUserId = {
+                FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+            }
         )
     }
 

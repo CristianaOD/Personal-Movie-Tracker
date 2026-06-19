@@ -11,15 +11,15 @@ interface MovieDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(movie: MovieEntity)
 
-    @Query("DELETE FROM watchlist_movies WHERE id = :movieId")
-    suspend fun deleteById(movieId: Int)
+    @Query("DELETE FROM watchlist_movies WHERE id = :movieId AND userId = :userId")
+    suspend fun deleteById(movieId: Int, userId: String)
 
-    @Query("SELECT * FROM watchlist_movies WHERE id = :movieId LIMIT 1")
-    suspend fun getById(movieId: Int): MovieEntity?
+    @Query("SELECT * FROM watchlist_movies WHERE id = :movieId AND userId = :userId LIMIT 1")
+    suspend fun getById(movieId: Int, userId: String): MovieEntity?
 
-    @Query("SELECT * FROM watchlist_movies ORDER BY addedAt DESC")
-    fun observeWatchlistMovies(): Flow<List<MovieEntity>>
+    @Query("SELECT * FROM watchlist_movies WHERE userId = :userId ORDER BY addedAt DESC")
+    fun observeWatchlistMovies(userId: String): Flow<List<MovieEntity>>
 
-    @Query("SELECT id FROM watchlist_movies")
-    fun observeWatchlistIds(): Flow<List<Int>>
+    @Query("SELECT id FROM watchlist_movies WHERE userId = :userId")
+    fun observeWatchlistIds(userId: String): Flow<List<Int>>
 }

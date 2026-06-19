@@ -1,12 +1,12 @@
 package cst.unibucfmiif2026.movie.data.local
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 import cst.unibucfmiif2026.movie.model.Movie
 
-@Entity(tableName = "watched_movies")
+@Entity(tableName = "watched_movies", primaryKeys = ["movieId", "userId"])
 data class WatchedMovieEntity(
-    @PrimaryKey val movieId: Int,
+    val movieId: Int,
+    val userId: String,
     val title: String,
     val overview: String,
     val posterPath: String?,
@@ -21,12 +21,14 @@ data class WatchedMovieEntity(
 )
 
 fun Movie.toWatchedEntity(
+    userId: String,
     rating: Int,
     comment: String,
     isFavorite: Boolean = false
 ): WatchedMovieEntity {
     return WatchedMovieEntity(
         movieId = id,
+        userId = userId,
         title = title,
         overview = overview,
         posterPath = posterPath,

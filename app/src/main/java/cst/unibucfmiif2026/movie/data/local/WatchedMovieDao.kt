@@ -12,27 +12,27 @@ interface WatchedMovieDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(movie: WatchedMovieEntity)
 
-    @Query("DELETE FROM watched_movies WHERE movieId = :movieId")
-    suspend fun deleteById(movieId: Int)
+    @Query("DELETE FROM watched_movies WHERE movieId = :movieId AND userId = :userId")
+    suspend fun deleteById(movieId: Int, userId: String)
 
-    @Query("SELECT * FROM watched_movies WHERE movieId = :movieId LIMIT 1")
-    suspend fun getById(movieId: Int): WatchedMovieEntity?
+    @Query("SELECT * FROM watched_movies WHERE movieId = :movieId AND userId = :userId LIMIT 1")
+    suspend fun getById(movieId: Int, userId: String): WatchedMovieEntity?
 
-    @Query("SELECT * FROM watched_movies ORDER BY watchedAt DESC")
-    fun observeAll(): Flow<List<WatchedMovieEntity>>
+    @Query("SELECT * FROM watched_movies WHERE userId = :userId ORDER BY watchedAt DESC")
+    fun observeAll(userId: String): Flow<List<WatchedMovieEntity>>
 
-    @Query("SELECT * FROM watched_movies WHERE isFavorite = 1 ORDER BY watchedAt DESC")
-    fun observeFavorites(): Flow<List<WatchedMovieEntity>>
+    @Query("SELECT * FROM watched_movies WHERE userId = :userId AND isFavorite = 1 ORDER BY watchedAt DESC")
+    fun observeFavorites(userId: String): Flow<List<WatchedMovieEntity>>
 
-    @Query("SELECT * FROM watched_movies ORDER BY rating DESC")
-    fun observeAllSortedByRating(): Flow<List<WatchedMovieEntity>>
+    @Query("SELECT * FROM watched_movies WHERE userId = :userId ORDER BY rating DESC")
+    fun observeAllSortedByRating(userId: String): Flow<List<WatchedMovieEntity>>
 
-    @Query("SELECT movieId FROM watched_movies")
-    fun observeWatchedIds(): Flow<List<Int>>
+    @Query("SELECT movieId FROM watched_movies WHERE userId = :userId")
+    fun observeWatchedIds(userId: String): Flow<List<Int>>
 
-    @Query("UPDATE watched_movies SET isFavorite = :isFavorite WHERE movieId = :movieId")
-    suspend fun updateFavorite(movieId: Int, isFavorite: Boolean)
+    @Query("UPDATE watched_movies SET isFavorite = :isFavorite WHERE movieId = :movieId AND userId = :userId")
+    suspend fun updateFavorite(movieId: Int, userId: String, isFavorite: Boolean)
 
-    @Query("UPDATE watched_movies SET rating = :rating, comment = :comment WHERE movieId = :movieId")
-    suspend fun updateReview(movieId: Int, rating: Int, comment: String)
+    @Query("UPDATE watched_movies SET rating = :rating, comment = :comment WHERE movieId = :movieId AND userId = :userId")
+    suspend fun updateReview(movieId: Int, userId: String, rating: Int, comment: String)
 }
