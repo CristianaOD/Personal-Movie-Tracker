@@ -21,6 +21,14 @@ interface TmdbApiService {
         @Query("include_adult") includeAdult: Boolean = false
     ): TmdbTrendingMoviesResponseDto
 
+    @GET("discover/movie")
+    suspend fun discoverMoviesByGenre(
+        @Query("api_key") apiKey: String,
+        @Query("with_genres") genreId: Int,
+        @Query("language") language: String = "en-US",
+        @Query("include_adult") includeAdult: Boolean = false
+    ): TmdbTrendingMoviesResponseDto
+
     @GET("movie/{movie_id}")
     suspend fun getMovieDetails(
         @Path("movie_id") movieId: Int,
