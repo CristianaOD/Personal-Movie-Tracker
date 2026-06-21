@@ -154,6 +154,30 @@ class MoviesRepository(
         movieDao.insert(movie.copy(isInWatchlist = true).toEntity(userId))
     }
 
+    suspend fun discoverMoviesByGenre(genreId: Int, genreName: String): MoviesResult {
+        val apiKey = BuildConfig.TMDB_API_KEY
+
+        if (apiKey.isBlank()) {
+            return MoviesResult(
+                movies = previewMovies.filter { movie -> movie.genres.contains(genreName) },
+                infoMessage = "TMDB API key is not configured. Showing preview $genreName movies."
+            )
+        }
+
+        return runCatching {
+            val response = TmdbRetrofitClient.api.discoverMoviesByGenre(
+                apiKey = apiKey,
+                genreId = genreId
+            )
+            MoviesResult(movies = response.results.orEmpty().map { movie -> movie.toMovie() })
+        }.getOrElse { error ->
+            MoviesResult(
+                movies = previewMovies.filter { movie -> movie.genres.contains(genreName) },
+                infoMessage = "Genre request failed: ${error.toReadableTmdbMessage()}. Showing preview data."
+            )
+        }
+    }
+
     suspend fun removeFromWatchlist(movieId: Int) {
         movieDao.deleteById(movieId, userId)
     }

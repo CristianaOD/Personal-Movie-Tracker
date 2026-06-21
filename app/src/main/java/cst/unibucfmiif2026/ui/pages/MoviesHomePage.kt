@@ -1,9 +1,12 @@
 package cst.unibucfmiif2026.ui.pages
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items as lazyItems
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -34,6 +37,7 @@ import cst.unibucfmiif2026.movie.model.Movie
 import cst.unibucfmiif2026.movie.network.TmdbImageUrlBuilder
 import cst.unibucfmiif2026.movie.viewmodel.MoviesUiState
 import cst.unibucfmiif2026.movie.viewmodel.MoviesViewModel
+import cst.unibucfmiif2026.movie.viewmodel.MovieGenreFilter
 import cst.unibucfmiif2026.ui.theme.*
 
 @Composable
@@ -47,14 +51,8 @@ fun MoviesHomePage(
     MoviesHomeContent(
         userEmail = userEmail,
         uiState = uiState,
-        onSearchQueryChange = { query ->
-            viewModel.onSearchQueryChange(query)
-            if (query.isBlank()) {
-                viewModel.clearSearch()
-            } else {
-                viewModel.searchMovies()
-            }
-        },
+        onSearchQueryChange = viewModel::onSearchQueryChange,
+        onGenreSelected = viewModel::selectGenre,
         onClearSearch = viewModel::clearSearch,
         onMovieClick = onMovieClick,
         onToggleWatchlist = viewModel::toggleWatchlist
@@ -66,11 +64,13 @@ private fun MoviesHomeContent(
     userEmail: String?,
     uiState: MoviesUiState,
     onSearchQueryChange: (String) -> Unit,
+    onGenreSelected: (MovieGenreFilter) -> Unit,
     onClearSearch: () -> Unit,
     onMovieClick: (Movie) -> Unit,
     onToggleWatchlist: (Movie) -> Unit
 ) {
-    val isSearching = uiState.searchQuery.isNotBlank()
+    val isSearching = uiState.isShowingSearchResults
+    val isFiltering = uiState.selectedGenre != MovieGenreFilter.ALL
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -94,7 +94,11 @@ private fun MoviesHomeContent(
                     .padding(top = 16.dp, bottom = 8.dp)
             ) {
                 Text(
-                    text = if (isSearching) "Search results" else "What's trending",
+                    text = when {
+                        isSearching -> "Search results"
+                        isFiltering -> "${uiState.selectedGenre.label} films"
+                        else -> "What's trending"
+                    },
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = LbTextPrimary
@@ -114,7 +118,7 @@ private fun MoviesHomeContent(
                     singleLine = true,
                     placeholder = {
                         Text(
-                            text = "Search films, directors...",
+                            text = "Search films...",
                             color = LbTextMuted,
                             fontSize = 13.sp
                         )
@@ -149,6 +153,12 @@ private fun MoviesHomeContent(
                     )
                 )
 
+                GenreSelector(
+                    selectedGenre = uiState.selectedGenre,
+                    onGenreSelected = onGenreSelected,
+                    modifier = Modifier.padding(top = 12.dp)
+                )
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -157,16 +167,17 @@ private fun MoviesHomeContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = if (isSearching)
-                            "${uiState.movies.size} RESULTS"
-                        else
-                            "TRENDING TODAY",
+                        text = when {
+                            isSearching -> "${uiState.movies.size} RESULTS"
+                            isFiltering -> "${uiState.selectedGenre.label.uppercase()} MOVIES"
+                            else -> "TRENDING TODAY"
+                        },
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = LbTextSecondary,
                         letterSpacing = 0.8.sp
                     )
-                    if (!isSearching) {
+                    if (!isSearching && !isFiltering) {
                         Text(
                             text = "${uiState.watchlistIds.size} saved",
                             fontSize = 11.sp,
@@ -221,7 +232,7 @@ private fun MoviesHomeContent(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = if (isSearching) "No results found." else "No films available.",
+                        text = if (isSearching || isFiltering) "No results found." else "No films available.",
                         fontSize = 14.sp,
                         color = LbTextMuted
                     )
@@ -233,6 +244,37 @@ private fun MoviesHomeContent(
                     movie = movie,
                     onMovieClick = { onMovieClick(movie) },
                     onToggleWatchlist = { onToggleWatchlist(movie) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun GenreSelector(
+    selectedGenre: MovieGenreFilter,
+    onGenreSelected: (MovieGenreFilter) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyRow(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(end = 4.dp)
+    ) {
+        lazyItems(MovieGenreFilter.entries) { genre ->
+            val selected = selectedGenre == genre
+            Surface(
+                modifier = Modifier.clickable { onGenreSelected(genre) },
+                shape = RoundedCornerShape(4.dp),
+                color = if (selected) LbGreen else LbSurface,
+                border = if (selected) null else BorderStroke(1.dp, LbBorder)
+            ) {
+                Text(
+                    text = genre.label.uppercase(),
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (selected) LbBackground else LbTextSecondary
                 )
             }
         }
