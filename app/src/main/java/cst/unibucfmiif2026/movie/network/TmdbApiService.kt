@@ -1,6 +1,8 @@
 package cst.unibucfmiif2026.movie.network
 
 import cst.unibucfmiif2026.movie.network.dto.TmdbMovieDetailsDto
+import cst.unibucfmiif2026.movie.network.dto.TmdbPersonMovieCreditsDto
+import cst.unibucfmiif2026.movie.network.dto.TmdbPersonSearchResponseDto
 import cst.unibucfmiif2026.movie.network.dto.TmdbTrendingMoviesResponseDto
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -27,4 +29,18 @@ interface TmdbApiService {
         @Query("api_key") apiKey: String,
         @Query("language") language: String = "en-US"
     ): TmdbMovieDetailsDto
+
+    @GET("search/person")
+    suspend fun searchPerson(
+        @Query("api_key") apiKey: String,
+        @Query("query") query: String,
+        @Query("language") language: String = "en-US"
+    ): TmdbPersonSearchResponseDto
+
+    @GET("person/{person_id}/movie_credits")
+    suspend fun getPersonMovieCredits(
+        @Path("person_id") personId: Int,
+        @Query("api_key") apiKey: String,
+        @Query("language") language: String = "en-US"
+    ): TmdbPersonMovieCreditsDto
 }

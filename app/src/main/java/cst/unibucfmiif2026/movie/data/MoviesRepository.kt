@@ -81,13 +81,38 @@ class MoviesRepository(
         }
 
         return runCatching {
-            val response = TmdbRetrofitClient.api.searchMovies(
+            // Search dupa titlu
+            val movieResults = TmdbRetrofitClient.api.searchMovies(
                 apiKey = apiKey,
                 query = query
-            )
-            MoviesResult(
-                movies = response.results.orEmpty().map { movie -> movie.toMovie() }
-            )
+            ).results.orEmpty().map { it.toMovie() }
+
+            // Search dupa persoana (actor/regizor)
+            val personMovies = runCatching {
+                val personResponse = TmdbRetrofitClient.api.searchPerson(
+                    apiKey = apiKey,
+                    query = query
+                )
+                val firstPerson = personResponse.results.orEmpty().firstOrNull()
+
+                if (firstPerson != null) {
+                    val credits = TmdbRetrofitClient.api.getPersonMovieCredits(
+                        personId = firstPerson.id,
+                        apiKey = apiKey
+                    )
+                    (credits.cast.orEmpty() + credits.crew.orEmpty())
+                        .map { it.toMovie() }
+                } else {
+                    emptyList()
+                }
+            }.getOrDefault(emptyList())
+
+            // Combin si elimin duplicate dupa id
+            val combined = (movieResults + personMovies)
+                .distinctBy { it.id }
+                .sortedByDescending { it.voteAverage }
+
+            MoviesResult(movies = combined)
         }.getOrElse { error ->
             MoviesResult(
                 movies = previewMovies.filter { movie ->
