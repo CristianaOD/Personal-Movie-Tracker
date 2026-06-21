@@ -10,5 +10,7 @@ data class Movie(
     val voteAverage: Double = 0.0,
     val voteCount: Int = 0,
     val genres: List<String> = emptyList(),
-    val isInWatchlist: Boolean = false
+    val isInWatchlist: Boolean = false,
+    val director: String? = null,
+    val cast: List<String> = emptyList()
 )

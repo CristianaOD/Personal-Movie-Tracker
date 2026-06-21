@@ -141,7 +141,25 @@ class MoviesRepository(
                 movieId = movieId,
                 apiKey = apiKey
             )
-            MovieDetailsResult(movie = response.toMovie())
+            var movie = response.toMovie()
+
+            runCatching {
+                val credits = TmdbRetrofitClient.api.getMovieCredits(
+                    movieId = movieId,
+                    apiKey = apiKey
+                )
+                val director = credits.crew.orEmpty()
+                    .firstOrNull { it.job == "Director" }
+                    ?.name
+                val topCast = credits.cast.orEmpty()
+                    .sortedBy { it.order }
+                    .take(5)
+                    .map { it.name }
+
+                movie = movie.copy(director = director, cast = topCast)
+            }
+
+            MovieDetailsResult(movie = movie)
         }.getOrElse { error ->
             MovieDetailsResult(
                 movie = fallbackMovie,

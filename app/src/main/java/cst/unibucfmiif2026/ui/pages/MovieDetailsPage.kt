@@ -295,6 +295,32 @@ private fun MovieDetailsContent(
                             }
                         }
 
+                        // Director
+                        uiState.movie.director?.let { director ->
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                LbSectionLabel("DIRECTOR")
+                                Text(
+                                    text = director,
+                                    fontSize = 14.sp,
+                                    color = LbTextPrimary,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        }
+
+                        // Cast
+                        if (uiState.movie.cast.isNotEmpty()) {
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                LbSectionLabel("CAST")
+                                Text(
+                                    text = uiState.movie.cast.joinToString(", "),
+                                    fontSize = 13.sp,
+                                    color = LbTextSecondary,
+                                    lineHeight = 19.sp
+                                )
+                            }
+                        }
+
                         LbSectionLabel("OVERVIEW")
                         Text(
                             text = uiState.movie.overview,

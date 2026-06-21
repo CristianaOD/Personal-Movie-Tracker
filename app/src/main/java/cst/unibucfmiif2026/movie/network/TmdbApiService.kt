@@ -1,5 +1,6 @@
 package cst.unibucfmiif2026.movie.network
 
+import cst.unibucfmiif2026.movie.network.dto.TmdbCreditsDto
 import cst.unibucfmiif2026.movie.network.dto.TmdbMovieDetailsDto
 import cst.unibucfmiif2026.movie.network.dto.TmdbPersonMovieCreditsDto
 import cst.unibucfmiif2026.movie.network.dto.TmdbPersonSearchResponseDto
@@ -51,4 +52,11 @@ interface TmdbApiService {
         @Query("api_key") apiKey: String,
         @Query("language") language: String = "en-US"
     ): TmdbPersonMovieCreditsDto
+
+    @GET("movie/{movie_id}/credits")
+    suspend fun getMovieCredits(
+        @Path("movie_id") movieId: Int,
+        @Query("api_key") apiKey: String,
+        @Query("language") language: String = "en-US"
+    ): TmdbCreditsDto
 }
