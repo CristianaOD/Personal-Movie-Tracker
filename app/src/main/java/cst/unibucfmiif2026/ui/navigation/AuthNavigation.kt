@@ -1,5 +1,6 @@
 package cst.unibucfmiif2026.ui.navigation
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Home
@@ -33,6 +34,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.outlined.MovieFilter
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import cst.unibucfmiif2026.ui.pages.ForgotPasswordPage
 import cst.unibucfmiif2026.ui.pages.MovieTrackerSplashScreen
 import cst.unibucfmiif2026.ui.pages.MyMoviesPage
@@ -70,6 +74,9 @@ fun AuthNavigation(
     val currentDestination = navBackStackEntry?.destination
     val startDestination = AuthRoute.Splash
 
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     val mainDestinations = listOf(
         MainDestination(AuthRoute.Home, R.string.nav_home_label, Icons.Outlined.Home),
         MainDestination(AuthRoute.Watchlist, R.string.nav_watchlist_label, Icons.Outlined.BookmarkBorder),
@@ -103,6 +110,14 @@ fun AuthNavigation(
     }
 
     Scaffold(
+        modifier = Modifier.pointerInput(Unit) {
+            detectTapGestures(
+                onTap = {
+                    focusManager.clearFocus()
+                    keyboardController?.hide()
+                }
+            )
+        },
         bottomBar = {
             if (showBottomBar) {
                 NavigationBar {

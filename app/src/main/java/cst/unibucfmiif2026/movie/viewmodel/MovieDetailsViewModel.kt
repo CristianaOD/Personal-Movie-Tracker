@@ -10,6 +10,7 @@ import cst.unibucfmiif2026.movie.data.MoviesRepository
 import cst.unibucfmiif2026.movie.model.Movie
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -42,12 +43,13 @@ class MovieDetailsViewModel(
         viewModelScope.launch {
             _uiState.update { state -> state.copy(isLoading = true) }
             val result = repository.getMovieDetails(movieId)
+            val watchlistIds = repository.observeWatchlistIds().first()
+
             _uiState.update { state ->
                 state.copy(
                     isLoading = false,
                     movie = result.movie?.copy(
-                        isInWatchlist = state.movie?.isInWatchlist
-                            ?: result.movie.isInWatchlist
+                        isInWatchlist = watchlistIds.contains(movieId)
                     ),
                     infoMessage = result.infoMessage
                 )
@@ -66,8 +68,9 @@ class MovieDetailsViewModel(
         viewModelScope.launch {
             repository.observeWatchlistIds().collect { ids ->
                 _uiState.update { state ->
+                    val currentMovie = state.movie ?: return@update state
                     state.copy(
-                        movie = state.movie?.copy(
+                        movie = currentMovie.copy(
                             isInWatchlist = ids.contains(movieId)
                         )
                     )
